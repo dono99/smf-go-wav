@@ -11,6 +11,7 @@ import (
 
 var errors chan error
 var results chan string
+var quit chan bool
 
 func checkErr() {
 	for {
@@ -32,6 +33,8 @@ func consumer(wg *sync.WaitGroup, s chan string) {
 		select {
 		case path = <-s:
 			break
+		case <-quit:
+			return
 		default:
 			continue
 		}
@@ -48,8 +51,9 @@ func consumer(wg *sync.WaitGroup, s chan string) {
 }
 
 func main() {
-	errors = make(chan error, 0)
-	results = make(chan string, 0)
+	errors = make(chan error)
+	results = make(chan string)
+	quit = make(chan bool)
 	var wg sync.WaitGroup
 	threads := 12
 	wg.Add(threads)
@@ -70,6 +74,9 @@ func main() {
 	})
 	if err != nil {
 		fmt.Println(err)
+	}
+	for i := 0; i < threads; i++ {
+		quit <- true
 	}
 	wg.Wait()
 }
