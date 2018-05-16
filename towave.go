@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 )
 
 var errors chan error
@@ -37,6 +38,7 @@ func consumer(wg *sync.WaitGroup, s chan string) {
 		case <-quit:
 			return
 		default:
+			time.Sleep(time.Millisecond * 100)
 			continue
 		}
 		newPath := strings.TrimRight(path, ".smf")
