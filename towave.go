@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -51,19 +52,20 @@ func consumer(wg *sync.WaitGroup, s chan string) {
 }
 
 func main() {
+	dir := flag.String("directory", ".", "the directory at which to begin recursively searching")
+	threads := flag.Int("threads", 1, "the number of threads with which to work")
+	flag.Parse()
 	errors = make(chan error)
 	results = make(chan string)
 	quit = make(chan bool)
 	var wg sync.WaitGroup
-	threads := 12
-	wg.Add(threads)
+	wg.Add(*threads)
 	s := make(chan string)
-	for i := 0; i < threads; i++ {
+	for i := 0; i < *threads; i++ {
 		go consumer(&wg, s)
 	}
-	dir := "H:\\extract\\sound"
 	go checkErr()
-	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(*dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -75,7 +77,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	for i := 0; i < threads; i++ {
+	for i := 0; i < *threads; i++ {
 		quit <- true
 	}
 	wg.Wait()
