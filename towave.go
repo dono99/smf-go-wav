@@ -15,7 +15,6 @@ var errors chan string
 var results chan string
 var quit chan bool
 var quitCheck chan bool
-var checkDone chan bool
 var processed int
 var failures int
 
@@ -31,20 +30,7 @@ func checkErr() {
 			processed++
 			break
 		case <-quitCheck:
-			checkDone <- true
 			return
-		}
-	}
-}
-
-func waitCheck() {
-	quitCheck <- true
-	for {
-		select {
-		case <-checkDone:
-			return
-		default:
-			time.Sleep(time.Millisecond * 100)
 		}
 	}
 }
@@ -86,7 +72,6 @@ func consumer(wg *sync.WaitGroup, s chan string) {
 func main() {
 	begin := time.Now()
 	quitCheck = make(chan bool)
-	checkDone = make(chan bool)
 	dir := flag.String("directory", ".", "the directory at which to begin recursively searching")
 	threads := flag.Int("threads", 1, "the number of threads with which to work")
 	flag.Parse()
@@ -116,7 +101,7 @@ func main() {
 		quit <- true
 	}
 	wg.Wait()
-	waitCheck()
+	quitCheck <- true
 	end := time.Now()
 	fmt.Println("files processed:", processed)
 	if failures > 0 {
