@@ -10,4 +10,4 @@ Then, download and install the package:
 
 Finally, run the program:
 
-    $ smf-go-wav -i /path/to/root -n numthreads
+    $ smf-go-wav [-directory=<string>] [-threads=<int>]
