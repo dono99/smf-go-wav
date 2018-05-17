@@ -72,7 +72,7 @@ func consumer(wg *sync.WaitGroup, s chan string) {
 			time.Sleep(time.Millisecond * 100)
 			continue
 		}
-		newPath := strings.TrimRight(path, ".smf")
+		newPath := strings.TrimSuffix(path, ".smf")
 		newPath += ".wav"
 		err := smfToWav(path, newPath)
 		if err != nil {
