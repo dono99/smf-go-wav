@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -49,6 +49,16 @@ func waitCheck() {
 	}
 }
 
+func smfToWav(oldPath, newPath string) error {
+	b, err := ioutil.ReadFile(oldPath)
+	if err != nil {
+		return err
+	}
+	b = b[16:]
+	ioutil.WriteFile(newPath, b, 0)
+	return nil
+}
+
 func consumer(wg *sync.WaitGroup, s chan string) {
 	defer wg.Done()
 	for {
@@ -64,8 +74,7 @@ func consumer(wg *sync.WaitGroup, s chan string) {
 		}
 		newPath := strings.TrimRight(path, ".smf")
 		newPath += ".wav"
-		cmd := exec.Command("dd", "if="+path, "of="+newPath, "iflag=binary,count_bytes", "oflag=binary", "bs=1", "skip=16", "status=none")
-		_, err := cmd.Output()
+		err := smfToWav(path, newPath)
 		if err != nil {
 			errors <- "failed at path " + path
 		} else {
