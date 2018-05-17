@@ -85,9 +85,6 @@ func consumer(wg *sync.WaitGroup, s chan string) {
 
 func main() {
 	begin := time.Now()
-	errors = make(chan string)
-	results = make(chan string)
-	quit = make(chan bool)
 	quitCheck = make(chan bool)
 	checkDone = make(chan bool)
 	dir := flag.String("directory", ".", "the directory at which to begin recursively searching")
@@ -96,6 +93,9 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(*threads)
 	s := make(chan string, *threads)
+	quit = make(chan bool, *threads)
+	errors = make(chan string, *threads)
+	results = make(chan string, *threads)
 	for i := 0; i < *threads; i++ {
 		go consumer(&wg, s)
 	}
