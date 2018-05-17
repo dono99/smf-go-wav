@@ -95,7 +95,7 @@ func main() {
 	flag.Parse()
 	var wg sync.WaitGroup
 	wg.Add(*threads)
-	s := make(chan string)
+	s := make(chan string, *threads)
 	for i := 0; i < *threads; i++ {
 		go consumer(&wg, s)
 	}
