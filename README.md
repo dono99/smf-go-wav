@@ -10,4 +10,6 @@ Then, download and install the package:
 
 Finally, run the program:
 
-    $ smf-go-wav [-directory=<string>] [-threads=<int>]
+    $ smf-go-wav [-directory="<string>"] [-threads=<int>]
+
+Directory defaults to current working directory, and threads defaults to 1.
