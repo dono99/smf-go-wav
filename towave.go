@@ -13,7 +13,6 @@ import (
 
 var errors chan string
 var results chan string
-var quit chan bool
 var quitCheck chan bool
 var processed int
 var failures int
@@ -48,15 +47,9 @@ func smfToWav(oldPath, newPath string) error {
 func consumer(wg *sync.WaitGroup, s chan string) {
 	defer wg.Done()
 	for {
-		var path string
-		select {
-		case path = <-s:
-			break
-		case <-quit:
+		path, alive := <-s
+		if !alive {
 			return
-		default:
-			time.Sleep(time.Millisecond * 100)
-			continue
 		}
 		newPath := strings.TrimSuffix(path, ".smf")
 		newPath += ".wav"
@@ -78,7 +71,6 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(*threads)
 	s := make(chan string, *threads)
-	quit = make(chan bool, *threads)
 	errors = make(chan string, *threads)
 	results = make(chan string, *threads)
 	for i := 0; i < *threads; i++ {
@@ -97,9 +89,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	for i := 0; i < *threads; i++ {
-		quit <- true
-	}
+	close(s)
 	wg.Wait()
 	quitCheck <- true
 	end := time.Now()
