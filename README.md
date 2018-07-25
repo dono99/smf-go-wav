@@ -1,5 +1,7 @@
 # smf-go-wav
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/kroppt/smf-go-wav)](https://goreportcard.com/report/github.com/kroppt/smf-go-wav)
+
 ## Installation
 
 First, [install golang](https://golang.org/doc/install).
